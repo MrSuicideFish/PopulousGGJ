@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct Virus
+[Serializable]
+public class Virus
 {
     /// <summary>
     /// How fast the virus kills

@@ -14,6 +14,11 @@ public class District : MonoBehaviour
     public int Population;
 
     /// <summary>
+    /// The number of people infected
+    /// </summary>
+    public int InfectedPopulation;
+
+    /// <summary>
     /// The defcon level
     /// </summary>
     public int PanicLevel;
@@ -61,7 +66,7 @@ public class District : MonoBehaviour
     /// <summary>
     /// Does this district have any infected population
     /// </summary>
-    public bool IsInfected;
+    public bool IsInfected { get { return InfectedPopulation > 0; } }
 
     /// <summary>
     /// The infrastructure this district contains
