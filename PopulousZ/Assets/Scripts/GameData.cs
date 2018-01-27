@@ -56,6 +56,22 @@ public enum E_INFRA_TYPE : int
 [CreateAssetMenu()]
 public class Infrastructure : ScriptableObject
 {
+    public static int InfraResCount;
+    private static Infrastructure[ ] all_infrastructure;
+    public static Infrastructure[ ] ALL_INFRASTRUCTURE
+    {
+        get
+        {
+            if (all_infrastructure == null)
+            {
+                all_infrastructure = Resources.LoadAll<Infrastructure>( "Infrastructure/" );
+                InfraResCount = all_infrastructure.Length - 1;
+            }
+
+            return all_infrastructure;
+        }
+    }
+
     public bool IsHacked;
     public int HackLevel;
     public E_INFRA_TYPE InfrastructureType;

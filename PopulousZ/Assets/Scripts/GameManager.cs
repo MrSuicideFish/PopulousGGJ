@@ -15,21 +15,21 @@ public class GameManager : MonoBehaviour
 
         /// Reset Districts
         ALL_DISTRICTS = District.FindObjectsOfType<District>();
-        for(int i = 0; i < ALL_DISTRICTS.Length; i++)
+        for (int i = 0; i < ALL_DISTRICTS.Length; i++)
         {
-            ALL_DISTRICTS[i].Population = Random.Range( 500, 3000 );
+            ALL_DISTRICTS[i].Population        = Random.Range( 500, 3000 );
             ALL_DISTRICTS[i].PopulationDensity = Random.Range( 0.3f, 0.8f );
-            ALL_DISTRICTS[i].PanicLevel = 0;
-            ALL_DISTRICTS[i].SpawnRate = 1.0f;
-            ALL_DISTRICTS[i].SpreadRate = 0.0f;
-            ALL_DISTRICTS[i].CureRate = 0.0f;
-            ALL_DISTRICTS[i].Communications = 1.0f;
-            ALL_DISTRICTS[i].WasteManagement = 1.0f;
-            ALL_DISTRICTS[i].EscapeRate = 1.0f;
-            ALL_DISTRICTS[i].HasCure = false;
-            ALL_DISTRICTS[i].IsInfected = false;
+            ALL_DISTRICTS[i].PanicLevel        = 0;
+            ALL_DISTRICTS[i].SpawnRate         = 1.0f;
+            ALL_DISTRICTS[i].SpreadRate        = 0.0f;
+            ALL_DISTRICTS[i].CureRate          = 0.0f;
+            ALL_DISTRICTS[i].Communications    = 1.0f;
+            ALL_DISTRICTS[i].WasteManagement   = 1.0f;
+            ALL_DISTRICTS[i].EscapeRate        = 1.0f;
+            ALL_DISTRICTS[i].HasCure           = false;
+            ALL_DISTRICTS[i].IsInfected        = false;
 
-            //Setup district structures
+            /// Setup random district structures
             ALL_DISTRICTS[i].SpawnStructures();
         }
     }

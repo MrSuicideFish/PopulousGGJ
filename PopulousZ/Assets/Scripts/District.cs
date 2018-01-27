@@ -75,7 +75,15 @@ public class District : MonoBehaviour
 
     public void SpawnStructures()
     {
-        //Get structures from resources
-
+        if (Infrastructure.InfraResCount > 0)
+        {
+            /// Get structures from resources
+            Structures = new Infrastructure[Random.Range( 2, 6 )];
+            for (int i = 0; i < Structures.Length; i++)
+            {
+                Structures[i] = Infrastructure.ALL_INFRASTRUCTURE[
+                    Random.Range( 0, Infrastructure.InfraResCount )];
+            }
+        }
     }
 }
