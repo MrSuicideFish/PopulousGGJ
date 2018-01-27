@@ -59,6 +59,11 @@ public class District : MonoBehaviour
     public bool HasCure;
 
     /// <summary>
+    /// Does this district have any infected population
+    /// </summary>
+    public bool IsInfected;
+
+    /// <summary>
     /// The infrastructure this district contains
     /// </summary>
     public Infrastructure[ ] Structures;
@@ -67,4 +72,16 @@ public class District : MonoBehaviour
     /// The neighboring districts
     /// </summary>
     public District[ ] Neighbors;
+
+    public void SpawnStructures()
+    {
+        for(int i = 0; i < Structures.Length; i++)
+        {
+            switch (Structures[i].InfrastructureType)
+            {
+                case E_INFRA_TYPE.COMMUNICATIONS:
+                    break;
+            }
+        }
+    }
 }
