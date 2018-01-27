@@ -2,15 +2,66 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameData : MonoBehaviour {
+public struct Virus
+{
+    /// <summary>
+    /// How fast the virus kills
+    /// </summary>
+    public float Speed;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    /// <summary>
+    /// When host dies, how much does it spread?
+    /// </summary>
+    public float Spore;
+
+    /// <summary>
+    /// How well the virus spreads through air
+    /// </summary>
+    public int Lv_Airborne;
+
+    /// <summary>
+    /// How well the virus spreads through water
+    /// </summary>
+    public int Lv_Waterborne;
+
+    /// <summary>
+    /// How well the virus spreads via food
+    /// </summary>
+    public int Lv_Foodborne;
+
+    /// <summary>
+    /// How well the virus spreads via insect
+    /// </summary>
+    public int Lv_Insect;
+
+    /// <summary>
+    /// How well the virus spreads via animal
+    /// </summary>
+    public int Lv_Animal;
+
+    public float GetSpreadRate()
+    {
+        return (Lv_Airborne + Lv_Animal + Lv_Foodborne + Lv_Insect + Lv_Waterborne) / 5;
+    }
+}
+
+public enum E_INFRA_TYPE : int
+{
+    ESCAPE_ROUTE = 0,
+    MEDICAL,
+    COMMUNICATIONS,
+    WASTE_MANAGEMENT
+}
+
+[CreateAssetMenu()]
+public class Infrastructure : ScriptableObject
+{
+    public bool IsHacked;
+    public int HackLevel;
+    public E_INFRA_TYPE InfrastructureType;
+
+    public float CureRateModifier;
+    public float EscapeRateModifier;
+    public float CommunicationsModifier;
+    public float WasteManagementModifier;
 }
