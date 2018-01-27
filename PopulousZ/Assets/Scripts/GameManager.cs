@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static Virus PLAYER_VIRUS { get; private set; }
     public static District[] ALL_DISTRICTS { get; private set; }
+    public static int GlobalDifficultyLevel = 1;
 
     private void ResetGame()
     {

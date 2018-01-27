@@ -75,13 +75,7 @@ public class District : MonoBehaviour
 
     public void SpawnStructures()
     {
-        for(int i = 0; i < Structures.Length; i++)
-        {
-            switch (Structures[i].InfrastructureType)
-            {
-                case E_INFRA_TYPE.COMMUNICATIONS:
-                    break;
-            }
-        }
+        //Get structures from resources
+
     }
 }
