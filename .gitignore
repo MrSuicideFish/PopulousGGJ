@@ -32,3 +32,6 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+PopulousZ/Library/metadata/
+PopulousZ/Library/ShaderCache/
+PopulousZ/Temp/
