@@ -16,12 +16,9 @@ public class InGameHUD : MonoBehaviour
     public List<string> WordPool { get; private set; }
 
     private Word[ ] Words;
-    private List<Word> CurrentWords;
-    private List<Word> MatchingWords;
-    private string CurrentText;
-    private bool HasFoundWord = false;
     private float HackTimeRemaining;
     private Image TimerBar;
+    private IEnumerator HackCoroutine;
 
     public static InGameHUD Instance;
 
@@ -44,8 +41,6 @@ public class InGameHUD : MonoBehaviour
     {
         LoadAllWords( );
         SetWords( );
-        CurrentWords = new List<Word>( );
-        MatchingWords = new List<Word>( );
         StartCoroutine( StartCountdown( ) );
     }
 
@@ -69,7 +64,8 @@ public class InGameHUD : MonoBehaviour
         WordHolder.gameObject.SetActive( true );
         TimerBG.gameObject.SetActive( true );
 
-        StartCoroutine( StartHacking( ) );
+        HackCoroutine = StartHacking( );
+        StartCoroutine( HackCoroutine );
     }
 
     /// <summary>
@@ -134,6 +130,8 @@ public class InGameHUD : MonoBehaviour
             {
                 word.SetWord( GetNewWord( ) );
                 foundMatch = true;
+
+                // TODO: Play word success SFX.
             }
             else
             {
@@ -143,12 +141,22 @@ public class InGameHUD : MonoBehaviour
 
         MyText.text = "";
 
-        //if( !foundMatch )
-        //    EndHacking( );
+        if( !foundMatch )
+            StopHacking( );
+    }
+
+    private void StopHacking()
+    {
+        StopCoroutine( HackCoroutine );
+        MyText.enabled = false;
+        MyText.DeactivateInputField( );
+
+        // TODO: Play failure SFX.
     }
 
     public void TypeLetter( )
     {
+        // Only proceed if there is text in the input field!
         if( string.IsNullOrEmpty( MyText.text ) || MyText.text.Length == 0 )
         {
             foreach( var word in Words )

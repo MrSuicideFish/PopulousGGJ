@@ -26,6 +26,7 @@ public class Word : MonoBehaviour
         if( word.Length > MyWord.Length )
             return false;
 
+        // Compare each character in the word passed in with MyWord.
         for( int i = 0; i < word.Length; i++ )
             if( word[ i ] != MyWord[ i ] )
                 return false;
@@ -33,12 +34,19 @@ public class Word : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// This is where the magic happens.
+    /// Create 2 strings of differenct colors based on the index passed in.
+    /// The first string will be red (matches the typed word in InGameHUD).
+    /// The second string is the remainder that has not been typed yet.
+    /// </summary>
+    /// <param name="lastIdx"></param>
     public void TypeLetter( int lastIdx )
     {
         string wordBegin = MyWord.Substring( 0, lastIdx );
         string wordEnd = MyWord.Substring( lastIdx );
 
-        Txt.text = "<color=red>" + wordBegin + "</color>" + "<color=black>" + wordEnd + "</color>";
+        Txt.text = "<color=#00AC33FF>" + wordBegin + "</color>" + "<color=black>" + wordEnd + "</color>";
     }
 
     public void SetWord( string word )
