@@ -54,6 +54,10 @@ public class Word : MonoBehaviour
 
     public void SetWord( string word )
     {
+        if(Txt == null)
+        {
+            Txt = GetComponentInChildren<Text>();
+        }
         MyWord = word;
         Txt.text = "<color=black>" + word + "</color>";
     }

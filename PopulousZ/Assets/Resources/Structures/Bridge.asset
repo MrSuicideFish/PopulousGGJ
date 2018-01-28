@@ -9,13 +9,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: Bus Station
+  m_Name: Bridge
   m_EditorClassIdentifier: Assembly-CSharp::Infrastructure_Data
-  Name: Greyhound Station
-  HackLevel: 3
+  Name: Brige
+  HackLevel: 1
   InfrastructureType: 0
   CureRateModifier: 0
-  EscapeRateModifier: 0.6
+  EscapeRateModifier: 0.7
   CommunicationsModifier: 0.2
-  WasteManagementModifier: 0.1
+  WasteManagementModifier: 0
   Sprite: {fileID: 21300000, guid: 19e1599d0adfb1e4d84e30e4cc3fdcbb, type: 3}

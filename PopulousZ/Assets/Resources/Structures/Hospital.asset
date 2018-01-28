@@ -9,13 +9,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: Subway
+  m_Name: Hospital
   m_EditorClassIdentifier: Assembly-CSharp::Infrastructure_Data
-  Name: Metro Station
+  Name: Tri-County Hospital
   HackLevel: 2
-  InfrastructureType: 0
-  CureRateModifier: 0.1
-  EscapeRateModifier: 0.5
-  CommunicationsModifier: 0.1
-  WasteManagementModifier: 0
-  Sprite: {fileID: 21300000, guid: 19e1599d0adfb1e4d84e30e4cc3fdcbb, type: 3}
+  InfrastructureType: 1
+  CureRateModifier: 0.9
+  EscapeRateModifier: 0.1
+  CommunicationsModifier: 0.5
+  WasteManagementModifier: 0.23
+  Sprite: {fileID: 21300000, guid: 1572c72cdbfa744498e42d819fcbe8a9, type: 3}

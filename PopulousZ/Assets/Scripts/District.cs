@@ -113,7 +113,24 @@ public class District : MonoBehaviour
     public void Update()
     {
         if (DistrictImage != null)
-            DistrictImage.color = InfectionColor;
+        {
+            if (IsInfected)
+            {
+                DistrictImage.color = Color.white;
+
+                if (GameManager.IsSimulating)
+                {
+                    for (int i = 0; i < Structures.Count; i++)
+                    {
+                        Structures[i].StructureSprite.color = Color.white;
+                    }
+
+                    if (InfectedPopulation / Population > 0.5f)
+                        for (int i = 0; i < Neighbors.Length; i++)
+                            Neighbors[i].InfectedPopulation += 5;
+                }
+            }
+        }
     }
 
     public void Infect()

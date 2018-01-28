@@ -89,19 +89,7 @@ public class InGameHUD : MonoBehaviour
 
     private void Awake( )
     {
-        Instance = this;
-
-        TimerBar = TimerBG.transform.GetChild( 0 ).GetComponent<Image>( );
-        Words = GetComponentsInChildren<Word>( true );
-
-        ToggleInformation( true );
-
-        HackTimeRemaining = HackTime;
-
-        MyInput.DeactivateInputField( );
-        MyInput.text = "";
-
-        WasHackSuccess = IsHackingInProgress = HasCountdownFinished = false;
+        LoadAllWords();
     }
 
     private void OnEnable( )
@@ -109,10 +97,27 @@ public class InGameHUD : MonoBehaviour
         TotalNumHacks = 5;
 
         NumCorrectText.text = "Num Correct: " + CurrentNumCorrect + " / " + TotalNumHacks;
+    }
 
-        LoadAllWords( );
-        SetWords( );
-        StartCoroutine( StartCountdown( ) );
+    public void BeginHack()
+    {
+        Instance = this;
+
+        TimerBar = TimerBG.transform.GetChild( 0 ).GetComponent<Image>();
+        Words = GetComponentsInChildren<Word>( true );
+
+        ToggleInformation( true );
+
+        HackTimeRemaining = HackTime;
+
+        MyInput.DeactivateInputField();
+        MyInput.text = "";
+
+        WasHackSuccess = IsHackingInProgress = HasCountdownFinished = false;
+
+        NumCorrectText.text = "Num Correct: " + CurrentNumCorrect + " / " + TotalNumHacks;
+        SetWords();
+        StartCoroutine( StartCountdown() );
     }
 
     private void Update( )
@@ -282,6 +287,7 @@ public class InGameHUD : MonoBehaviour
         InformationText.text = message;
 
         // TODO: Play failure SFX.
+        GameManager.Instance.EndHackStructure();
     }
 
     private void DeactivateHUD( )

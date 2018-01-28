@@ -9,13 +9,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: Tri-County CDC
+  m_Name: PoliceStation
   m_EditorClassIdentifier: Assembly-CSharp::Infrastructure_Data
-  Name: Tri-County CDC
+  Name: Tri-County Police
   HackLevel: 3
-  InfrastructureType: 1
-  CureRateModifier: 1
-  EscapeRateModifier: 0.3
-  CommunicationsModifier: 0.7
-  WasteManagementModifier: 0.6
-  Sprite: {fileID: 21300000, guid: 1572c72cdbfa744498e42d819fcbe8a9, type: 3}
+  InfrastructureType: 2
+  CureRateModifier: 0.2
+  EscapeRateModifier: 0.1
+  CommunicationsModifier: 0.6
+  WasteManagementModifier: 0.1
+  Sprite: {fileID: 21300000, guid: f28116b63a3055f42807f4b28d73796f, type: 3}

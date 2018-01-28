@@ -142,6 +142,7 @@ public class CommandPanelController : MonoBehaviour
                         SelectedDistrict.Deselect();
                         SelectedDistrict = null;
                         SelectedStructure = null;
+
                         GameManager.Instance.DeployVirusInDistrict( _d );
                     }
                     else //Go to hack
@@ -154,27 +155,15 @@ public class CommandPanelController : MonoBehaviour
 
             case E_COMMAND_STATE.HACK:
                 //Back
-                if (selection == SelectedDistrict.Structures.Count)
-                {
-                    GoToDistrictOptions();
-                    return;
-                }
-                else if (selection > SelectedDistrict.Structures.Count)
-                {
-                    PanelAudioSourceComponent.PlayOneShot( InputErrorAudio );
-                    return;
-                }
-                else
-                {
-                    SelectedStructure = SelectedDistrict.Structures[selection];
-                    GoToStructureStats();
-                }
+                selection -= 1;
+                SelectedStructure = SelectedDistrict.Structures[selection];
+                GoToStructureStats();
                 break;
 
             case E_COMMAND_STATE.HACK_STATS:
                 if(selection == 1)
                 {
-
+                    GameManager.Instance.BeginHackStructure( SelectedStructure );
                 }
                 else if (selection == 2)/// Back
                 {
@@ -310,6 +299,14 @@ public class CommandPanelController : MonoBehaviour
         if (GameManager.ALL_DISTRICTS == null || CommandState == E_COMMAND_STATE.SELECT_DISTRICT)
             return;
 
+        if(GameManager.HasVirusDeployed)
+        {
+            SelectedDistrict = GameManager.District_GroundZero;
+            SelectedStructure = null;
+            GoToHackInfrastructure();
+            return;
+        }
+
         CommandState = E_COMMAND_STATE.SELECT_DISTRICT;
 
         int i;
@@ -318,7 +315,10 @@ public class CommandPanelController : MonoBehaviour
 
         SelectedDistrict = null;
 
-        CommandLineText  = "SELECT A DISTRICT: \n\n";
+        if(!GameManager.HasVirusDeployed)
+            CommandLineText  = "SELECT A DISTRICT TO BEGIN INFECTION: \n\n";
+        else
+            CommandLineText = "SELECT A DISTRICT: \n\n";
         for (i = 0; i < GameManager.ALL_DISTRICTS.Length; i++)
         {
             //if(GameManager.HasVirusDeployed
@@ -377,7 +377,7 @@ public class CommandPanelController : MonoBehaviour
             CommandLineText += '\n';
         }
         i++;
-        CommandLineText += (i).ToString() + ". " + "QUIT";
+        CommandLineText += (i).ToString() + ". " + "BACK";
     }
 
     private void GoToStructureStats()
@@ -388,7 +388,7 @@ public class CommandPanelController : MonoBehaviour
         CommandLineText = "STRUCTURE STATS: \n";
         CommandLineText += "------------\n\n";
         CommandLineText += "NAME: " + SelectedStructure.Name.ToUpper() + "\n";
-        CommandLineText += "(DIFFICULTY: " + SelectedStructure.Name.ToUpper() + ")\n";
+        CommandLineText += "(DIFFICULTY: " + SelectedStructure.HackLevel + ")\n";
         CommandLineText += "CURE RATING: " + SelectedStructure.CureRateModifier + '\n';
         CommandLineText += "TRAVEL RATING: " + SelectedStructure.EscapeRateModifier + '\n';
     }

@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
     //UI Components
     public CommandPanelController CommandLinePanel;
 
+    public InGameHUD HackHud;
+
     public BeautifyEffect.Beautify BeautifyComponent;
     public Color Color_WorldSafe;
     public Color Color_WorldInfected;
@@ -168,24 +170,33 @@ public class GameManager : MonoBehaviour
         StructureToHack = _s;
 
         //Show hack screen
+        HackHud.gameObject.SetActive( true );
+        CommandLinePanel.gameObject.SetActive( false );
+        HackHud.BeginHack();
     }
 
-    public void EndHackStructure(bool success)
+    public void EndHackStructure()
     {
         //Hide hack screen
+        bool success = HackHud.WasHackSuccess;
+        HackHud.gameObject.SetActive( true );
+        CommandLinePanel.gameObject.SetActive( true);
 
-        if(success)
+        if (success)
         {
             StructureToHack.IsHacked = true;
+            StructureToHack.StructureSprite.color = Color.white;
         }
         else
         {
             StructureToHack.IsHacked = false;
             StructureToHack.HackLevel = Mathf.Clamp( StructureToHack.HackLevel + 1,
                 1, 3 );
+            StructureToHack.StructureSprite.color = new Color( 1, 1, 1, 0.2f );
         }
 
         StructureToHack = null;
+        EndPlayerTurn();
     }
 
     public Infrastructure[] GetAllInfrustructure()

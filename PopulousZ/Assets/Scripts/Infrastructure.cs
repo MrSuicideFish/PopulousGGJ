@@ -50,6 +50,8 @@ public class Infrastructure : MonoBehaviour
         if (ParentDistrict != null
             && Infrastructure.ALL_INFRASTRUCTURE != null)
         {
+
+
             //Generate random structure
             Model = Infrastructure.ALL_INFRASTRUCTURE[
                 Random.Range( 0, Infrastructure.InfraResCount )];
