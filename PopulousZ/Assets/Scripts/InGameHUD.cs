@@ -13,10 +13,9 @@ public class InGameHUD : MonoBehaviour
 
     public List<string> WordPool { get; private set; }
 
-    private string CurrentText;
     private List<FallingWord> CurrentWords;
-    private string MatchingWord;
-    private FallingWord[ ] MatchingWords;
+    private List<FallingWord> MatchingWords;
+    private string CurrentText;
     private bool HasFoundWord = false;
 
     public static InGameHUD Instance;
@@ -28,8 +27,10 @@ public class InGameHUD : MonoBehaviour
 
     private void Start( )
     {
+        MyText.text = "";
         LoadWords( );
         CurrentWords = new List<FallingWord>( );
+        MatchingWords = new List<FallingWord>( );
         StartCoroutine( StartFallingWords( ) );
     }
 
@@ -43,13 +44,12 @@ public class InGameHUD : MonoBehaviour
         while( !reader.EndOfStream )
             WordPool.Add( reader.ReadLine( ) );
 
-        Debug.Log( WordPool.Count );
         reader.Close( );
     }
 
     private IEnumerator StartFallingWords( )
     {
-        while( true )
+        while( WordPool.Count > 0 )
         {
             SpawnWordRandomLocation( );
             yield return new WaitForSeconds( TimeBetweenWords );
@@ -83,41 +83,65 @@ public class InGameHUD : MonoBehaviour
 
     public void TypeLetter( char letter )
     {
-        if( HasFoundWord )
+        // Append what has been typed so far.
+        CurrentText += letter.ToString( );
+
+        // Find all matching words.
+        foreach( var word in CurrentWords )
         {
-            if( MatchingWords[ 0 ].GetNextLetter( ) == letter )
+            // Does current index of word match how many letters we've typed
+            // AND next letter match current typed letter?
+            if( word.CharIndex == CurrentText.Length - 1
+                && word.GetCurrentLetter( ) == letter )
             {
-                MyText.text += letter.ToString( );
-
-                foreach( var word in MatchingWords )
-                    if( word.GetNextLetter( ) == letter )
-                        word.TypeLetter( );
+                if( MatchingWords != null && !MatchingWords.Contains( word ) )
+                    MatchingWords.Add( word );
             }
-
-            if( MatchingWords[ 0 ].WordFinished( ) )
+            else
             {
-                for( int i = 0; i < MatchingWords.Length; i++ )
+                if( MatchingWords != null && MatchingWords.Contains( word ) )
+                    MatchingWords.Remove( word );
+
+                word.ResetWord( );
+            }
+        }
+
+        // If we have found some words.
+        if( MatchingWords != null && MatchingWords.Count > 0 )
+        {
+            // Show what we've typed so far.
+            MyText.text = CurrentText;
+
+            // Change the color of the currently typed letter in each word.
+            for( int i = 0; i < MatchingWords.Count; i++ )
+                MatchingWords[ i ].TypeLetter( );
+
+            // Check to see if all words have been completed.
+            bool allWordsTyped = MatchingWords.All( x => x.WordFinished( ) );
+            if( allWordsTyped )
+            {
+                // Remove finished words from the CurrentWords list.
+                // Destroy the finished word.
+                for( int i = 0; i < MatchingWords.Count; i++ )
                 {
                     CurrentWords.Remove( MatchingWords[ i ] );
                     Destroy( MatchingWords[ i ].gameObject );
                 }
 
-                HasFoundWord = false;
-                MatchingWords = null;
-                MyText.text = "";
+                // Reset stuff
+                CurrentText = null;
+                MatchingWords = new List<FallingWord>( );
             }
         }
-        else
+        else // Didn't find matching or mistyped character.
         {
-            MatchingWords = CurrentWords.FindAll( x => x.GetNextLetter( ) == letter ).ToArray( );
-            if( MatchingWords != null && MatchingWords.Length > 0 )
-            {
-                HasFoundWord = true;
-                MyText.text = letter.ToString( );
-            }
+            // Reset all words.
+            foreach( var word in CurrentWords )
+                word.ResetWord( );
 
-            foreach( var word in MatchingWords )
-                word.TypeLetter( );
+            // Reset everything.
+            MyText.text = CurrentText = null;
+            MatchingWords = new List<FallingWord>( );
         }
     }
 }

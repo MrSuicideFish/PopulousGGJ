@@ -13,8 +13,8 @@ public class FallingWord : MonoBehaviour
     public float FallSpeed = 5.0f;
 
     public RectTransform RectTrans { get; private set; }
+    public int CharIndex { get; private set; }
 
-    private int CharIndex = 0;
     private string Word;
     private Text Txt;
 
@@ -22,6 +22,7 @@ public class FallingWord : MonoBehaviour
     {
         Txt = GetComponent<Text>( );
         RectTrans = GetComponent<RectTransform>( );
+        CharIndex = 0;
     }
 
     private void Update( )
@@ -29,12 +30,24 @@ public class FallingWord : MonoBehaviour
         transform.position += Vector3.down * Time.deltaTime * FallSpeed;
     }
 
+    public bool CompareString( string other )
+    {
+        if( other.Length > Word.Length )
+            return false;
+
+        for( int i = 0; i < other.Length; i++ )
+            if( other[ i ] != Word[ i ] )
+                return false;
+
+        return true;
+    }
+
     public string GetWord( )
     {
         return Txt.text;
     }
 
-    public char GetNextLetter( )
+    public char GetCurrentLetter( )
     {
         return Word[ CharIndex ];
     }
@@ -56,12 +69,14 @@ public class FallingWord : MonoBehaviour
 
     public void SetText( string word )
     {
-        Txt.text = Word = word;
+        CharIndex = 0;
+        Word = word;
+        Txt.text = "<color=white>" + word + "</color>";
     }
 
-    public void ResetWord()
+    public void ResetWord( )
     {
-        Txt.color = Color.white;
-        Txt.text = Word;
+        CharIndex = 0;
+        Txt.text = "<color=white>" + Word + "</color>";
     }
 }
