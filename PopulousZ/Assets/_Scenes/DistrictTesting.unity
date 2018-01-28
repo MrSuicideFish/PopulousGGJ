@@ -223,6 +223,7 @@ MonoBehaviour:
   CommandText: {fileID: 853476328}
   ClickAudio: {fileID: 0}
   InputErrorAudio: {fileID: 0}
+  CommandLineRect: {fileID: 0}
 --- !u!82 &25376476
 AudioSource:
   m_ObjectHideFlags: 0
@@ -993,8 +994,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 14.65}
+  m_SizeDelta: {x: 0, y: 29.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &329750865
 MonoBehaviour:
@@ -2498,6 +2499,7 @@ GameObject:
   m_Component:
   - component: {fileID: 925247003}
   - component: {fileID: 925247004}
+  - component: {fileID: 925247005}
   m_Layer: 5
   m_Name: STATS
   m_TagString: Untagged
@@ -2532,6 +2534,18 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 925247002}
+--- !u!114 &925247005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 925247002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c818bed2605e7ce4fa875c7c95a98e15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StatsText: {fileID: 1677382162}
 --- !u!1 &1022859609
 GameObject:
   m_ObjectHideFlags: 0
@@ -3937,9 +3951,9 @@ MonoBehaviour:
 
     ----------
 
-    TOTAL INFRASTRUCTURE: 0
+    TOTAL INFRASTRUCTURE: 3
 
-    HACKED INFRASTRUCTURE: 0'
+    HACKED INFRASTRUCTURE: 16'
 --- !u!222 &1677382163
 CanvasRenderer:
   m_ObjectHideFlags: 0
