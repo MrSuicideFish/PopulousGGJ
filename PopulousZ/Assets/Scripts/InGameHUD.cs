@@ -7,34 +7,75 @@ using UnityEngine.UI;
 
 public class InGameHUD : MonoBehaviour
 {
-    public Text MyText;
-    public FallingWord FallingTextPrefab;
-    public float TimeBetweenWords = 1.0f;
+    public Text CountdownText;
+    public InputField MyText;
+    public float HackTime = 10.0f;
+    public Image TimerBG;
+    public GameObject WordHolder;
 
     public List<string> WordPool { get; private set; }
 
-    private List<FallingWord> CurrentWords;
-    private List<FallingWord> MatchingWords;
+    private Word[ ] Words;
+    private List<Word> CurrentWords;
+    private List<Word> MatchingWords;
     private string CurrentText;
     private bool HasFoundWord = false;
+    private float HackTimeRemaining;
+    private Image TimerBar;
 
     public static InGameHUD Instance;
 
     private void Awake( )
     {
         Instance = this;
+
+        TimerBar = TimerBG.transform.GetChild( 0 ).GetComponent<Image>( );
+        Words = GetComponentsInChildren<Word>( true );
+
+        CountdownText.gameObject.SetActive( true );
+        TimerBG.gameObject.SetActive( false );
+        WordHolder.gameObject.SetActive( false );
+
+        HackTimeRemaining = HackTime;
+        MyText.text = "";
     }
 
     private void Start( )
     {
-        MyText.text = "";
-        LoadWords( );
-        CurrentWords = new List<FallingWord>( );
-        MatchingWords = new List<FallingWord>( );
-        StartCoroutine( StartFallingWords( ) );
+        LoadAllWords( );
+        SetWords( );
+        CurrentWords = new List<Word>( );
+        MatchingWords = new List<Word>( );
+        StartCoroutine( StartCountdown( ) );
     }
 
-    private void LoadWords( )
+    private IEnumerator StartCountdown( )
+    {
+        string text = "Start hacking in\n";
+        int countDown = 3;
+
+        while( countDown >= 0 )
+        {
+            if( countDown == 0 )
+                CountdownText.text = text + "Hack!";
+            else
+                CountdownText.text = text + countDown.ToString( ) + "...";
+
+            yield return new WaitForSeconds( 1.0f );
+            countDown -= 1;
+        }
+
+        CountdownText.gameObject.SetActive( false );
+        WordHolder.gameObject.SetActive( true );
+        TimerBG.gameObject.SetActive( true );
+
+        StartCoroutine( StartHacking( ) );
+    }
+
+    /// <summary>
+    /// Load all possible words from the text file located in path.
+    /// </summary>
+    private void LoadAllWords( )
     {
         WordPool = new List<string>( );
 
@@ -47,101 +88,87 @@ public class InGameHUD : MonoBehaviour
         reader.Close( );
     }
 
-    private IEnumerator StartFallingWords( )
+    private void SetWords( )
     {
-        while( WordPool.Count > 0 )
+        for( int i = 0; i < Words.Length; i++ )
         {
-            SpawnWordRandomLocation( );
-            yield return new WaitForSeconds( TimeBetweenWords );
+            string rndWord = WordPool[ Random.Range( 0, WordPool.Count ) ];
+            Words[ i ].SetWord( rndWord );
+            WordPool.Remove( rndWord );
         }
     }
 
-    private void SpawnWordRandomLocation( )
+    private string GetNewWord( )
     {
-        FallingWord obj = Instantiate( FallingTextPrefab, transform ) as FallingWord;
-        float minPosX = obj.RectTrans.position.x - ( Screen.width / 2f ) + ( obj.RectTrans.sizeDelta.x / 2f );
-        float maxPosX = obj.RectTrans.position.x + ( Screen.width / 2f ) - ( obj.RectTrans.sizeDelta.x / 2f );
-        float posY = transform.position.y + ( Screen.height / 2f ) + ( obj.RectTrans.sizeDelta.y / 2f );
-        obj.RectTrans.position = new Vector3( Random.Range( minPosX, maxPosX ), posY, 0f );
-
-        AddWordToList( obj );
+        string rndWord = WordPool[ Random.Range( 0, WordPool.Count ) ];
+        WordPool.Remove( rndWord );
+        return rndWord;
     }
 
-    private void AddWordToList( FallingWord textObj )
+    private IEnumerator StartHacking( )
     {
-        string randWord = WordPool[ Random.Range( 0, WordPool.Count ) ];
-        textObj.SetText( randWord );
-        CurrentWords.Add( textObj );
-        WordPool.Remove( randWord );
-    }
-
-    private void Update( )
-    {
-        foreach( char letter in Input.inputString )
-            TypeLetter( letter );
-    }
-
-    public void TypeLetter( char letter )
-    {
-        // Append what has been typed so far.
-        CurrentText += letter.ToString( );
-
-        // Find all matching words.
-        foreach( var word in CurrentWords )
+        while( HackTimeRemaining >= 0.0f )
         {
-            // Does current index of word match how many letters we've typed
-            // AND next letter match current typed letter?
-            if( word.CharIndex == CurrentText.Length - 1
-                && word.GetCurrentLetter( ) == letter )
+            // If at any point the input is no longer focused, focus it to receive input!
+            if( !MyText.isFocused )
+                MyText.ActivateInputField( );
+
+            // Decrease hack time.
+            HackTimeRemaining -= Time.deltaTime;
+            TimerBar.fillAmount = HackTimeRemaining / HackTime;
+
+            if( Input.GetKeyDown( KeyCode.Return ) )
+                SubmitWord( );
+
+            yield return null;
+        }
+    }
+
+    private void SubmitWord( )
+    {
+        bool foundMatch = false;
+
+        foreach( var word in Words )
+        {
+            if( word.GetWord( ) == MyText.text )
             {
-                if( MatchingWords != null && !MatchingWords.Contains( word ) )
-                    MatchingWords.Add( word );
+                word.SetWord( GetNewWord( ) );
+                foundMatch = true;
             }
             else
             {
-                if( MatchingWords != null && MatchingWords.Contains( word ) )
-                    MatchingWords.Remove( word );
-
                 word.ResetWord( );
             }
         }
 
-        // If we have found some words.
-        if( MatchingWords != null && MatchingWords.Count > 0 )
+        MyText.text = "";
+
+        //if( !foundMatch )
+        //    EndHacking( );
+    }
+
+    public void TypeLetter( )
+    {
+        if( string.IsNullOrEmpty( MyText.text ) || MyText.text.Length == 0 )
         {
-            // Show what we've typed so far.
-            MyText.text = CurrentText;
+            foreach( var word in Words )
+                word.ResetWord( );
 
-            // Change the color of the currently typed letter in each word.
-            for( int i = 0; i < MatchingWords.Count; i++ )
-                MatchingWords[ i ].TypeLetter( );
+            return;
+        }
 
-            // Check to see if all words have been completed.
-            bool allWordsTyped = MatchingWords.All( x => x.WordFinished( ) );
-            if( allWordsTyped )
+        // Loop through all words to see if any match.
+        for( int i = 0; i < Words.Length; i++ )
+        {
+            Word word = Words[ i ];
+            if( word.DoLettersMatch( MyText.text ) )
             {
-                // Remove finished words from the CurrentWords list.
-                // Destroy the finished word.
-                for( int i = 0; i < MatchingWords.Count; i++ )
-                {
-                    CurrentWords.Remove( MatchingWords[ i ] );
-                    Destroy( MatchingWords[ i ].gameObject );
-                }
-
-                // Reset stuff
-                CurrentText = null;
-                MatchingWords = new List<FallingWord>( );
+                word.TypeLetter( MyText.text.Length );
             }
-        }
-        else // Didn't find matching or mistyped character.
-        {
-            // Reset all words.
-            foreach( var word in CurrentWords )
+            else
+            {
                 word.ResetWord( );
-
-            // Reset everything.
-            MyText.text = CurrentText = null;
-            MatchingWords = new List<FallingWord>( );
+            }
         }
     }
 }
