@@ -5,15 +5,19 @@ using UnityEngine.UI;
 
 public class Word : MonoBehaviour
 {
-    public RectTransform RectTrans { get; private set; }
-
+    /// <summary>
+    /// The string word that class has.
+    /// </summary>
     private string MyWord;
+
+    /// <summary>
+    /// The text component to display MyWord.
+    /// </summary>
     private Text Txt;
 
     private void Awake( )
     {
         Txt = GetComponentInChildren<Text>( );
-        RectTrans = GetComponent<RectTransform>( );
     }
 
     public string GetWord( )
@@ -35,8 +39,7 @@ public class Word : MonoBehaviour
     }
 
     /// <summary>
-    /// This is where the magic happens.
-    /// Create 2 strings of differenct colors based on the index passed in.
+    /// This is where the magic happens.  Create 2 strings of differenct colors based on the index passed in.
     /// The first string will be red (matches the typed word in InGameHUD).
     /// The second string is the remainder that has not been typed yet.
     /// </summary>
