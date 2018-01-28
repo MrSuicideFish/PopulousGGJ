@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [Serializable]
 public class Virus
@@ -39,31 +40,16 @@ public class Virus
 
 public enum E_INFRA_TYPE : int
 {
-    ESCAPE_ROUTE = 0,
+    TRAVEL = 0,
     MEDICAL,
     COMMUNICATIONS,
     WASTE_MANAGEMENT
 }
 
+
 [CreateAssetMenu()]
-public class Infrastructure : ScriptableObject
+public class Infrastructure_Data : ScriptableObject
 {
-    public static int InfraResCount;
-    private static Infrastructure[ ] all_infrastructure;
-    public static Infrastructure[ ] ALL_INFRASTRUCTURE {
-        get {
-            if (all_infrastructure == null)
-            {
-                all_infrastructure = Resources.LoadAll<Infrastructure>( "Infrastructure/" );
-                InfraResCount = all_infrastructure.Length - 1;
-            }
-
-            return all_infrastructure;
-        }
-    }
-
-    public string Name;
-    public bool IsHacked;
     public int HackLevel;
     public E_INFRA_TYPE InfrastructureType;
 
@@ -71,4 +57,6 @@ public class Infrastructure : ScriptableObject
     public float EscapeRateModifier;
     public float CommunicationsModifier;
     public float WasteManagementModifier;
+
+    public Sprite Sprite;
 }

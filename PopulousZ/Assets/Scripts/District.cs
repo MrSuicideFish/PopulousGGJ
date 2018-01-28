@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class District : MonoBehaviour
 {
@@ -68,27 +70,58 @@ public class District : MonoBehaviour
     /// </summary>
     public bool IsInfected { get { return InfectedPopulation > 0; } }
 
+    private Sprite OldSprite;
+    public Sprite SelectedSprite;
+
     /// <summary>
     /// The infrastructure this district contains
     /// </summary>
-    public Infrastructure[ ] Structures;
+    [HideInInspector]
+    public List<Infrastructure> Structures = new List<Infrastructure>();
 
     /// <summary>
     /// The neighboring districts
     /// </summary>
     public District[ ] Neighbors;
 
-    public void SpawnStructures()
+    #region Components
+    private Image DistrictImage;
+    #endregion
+
+    private Color InfectionColor = Color.blue;
+
+    private void Awake()
     {
-        if (Infrastructure.InfraResCount > 0)
+        DistrictImage = GetComponent<Image>();
+
+        if(DistrictImage != null)
         {
-            /// Get structures from resources
-            Structures = new Infrastructure[Random.Range( 2, 6 )];
-            for (int i = 0; i < Structures.Length; i++)
-            {
-                Structures[i] = Infrastructure.ALL_INFRASTRUCTURE[
-                    Random.Range( 0, Infrastructure.InfraResCount )];
-            }
+            OldSprite = DistrictImage.sprite;
+            DistrictImage.color = InfectionColor;
         }
+    }
+
+    public void Update()
+    {
+        if (DistrictImage != null)
+            DistrictImage.color = InfectionColor;
+    }
+
+    public void Infect()
+    {
+        if(DistrictImage != null)
+        {
+            DistrictImage.color = Color.white;
+        }
+    }
+
+    public void Select()
+    {
+        DistrictImage.sprite = SelectedSprite;
+    }
+
+    public void Deselect()
+    {
+        DistrictImage.sprite = OldSprite;
     }
 }
