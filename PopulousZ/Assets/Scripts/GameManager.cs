@@ -47,6 +47,8 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         ResetGame();
+
+        /// Initialize event service
     }
 
     private void Update()
@@ -72,7 +74,12 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < ALL_DISTRICTS.Length; i++)
         {
             //Increase the infected population by factors
+            float proximity = ALL_DISTRICTS[i].InfectedPopulation / ALL_DISTRICTS[i].Population;
+            proximity *= ALL_DISTRICTS[i].PopulationDensity;
+
             float waterInfectRate = ((1.1f - ALL_DISTRICTS[i].WasteManagement) * PLAYER_VIRUS.Lv_Waterborne) * ALL_DISTRICTS[i].PopulationDensity;
+            float airInfectRate = ((1.1f - ALL_DISTRICTS[i].WasteManagement) * PLAYER_VIRUS.Lv_Airborne) * ALL_DISTRICTS[i].PopulationDensity;
+            
             Debug.LogFormat( "Water infect ({0}): {1}", ALL_DISTRICTS[i].name, waterInfectRate );
         }
     }

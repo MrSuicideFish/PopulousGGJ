@@ -31,19 +31,9 @@ public class Virus
     /// </summary>
     public int Lv_Foodborne;
 
-    /// <summary>
-    /// How well the virus spreads via insect
-    /// </summary>
-    public int Lv_Insect;
-
-    /// <summary>
-    /// How well the virus spreads via animal
-    /// </summary>
-    public int Lv_Animal;
-
     public float GetSpreadRate()
     {
-        return (Lv_Airborne + Lv_Animal + Lv_Foodborne + Lv_Insect + Lv_Waterborne) / 5;
+        return (Lv_Airborne + Lv_Foodborne + Lv_Waterborne) / 3;
     }
 }
 
@@ -60,10 +50,8 @@ public class Infrastructure : ScriptableObject
 {
     public static int InfraResCount;
     private static Infrastructure[ ] all_infrastructure;
-    public static Infrastructure[ ] ALL_INFRASTRUCTURE
-    {
-        get
-        {
+    public static Infrastructure[ ] ALL_INFRASTRUCTURE {
+        get {
             if (all_infrastructure == null)
             {
                 all_infrastructure = Resources.LoadAll<Infrastructure>( "Infrastructure/" );
@@ -74,6 +62,7 @@ public class Infrastructure : ScriptableObject
         }
     }
 
+    public string Name;
     public bool IsHacked;
     public int HackLevel;
     public E_INFRA_TYPE InfrastructureType;
