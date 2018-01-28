@@ -7,117 +7,308 @@ using UnityEngine.UI;
 
 public class InGameHUD : MonoBehaviour
 {
-    public Text MyText;
-    public FallingWord FallingTextPrefab;
-    public float TimeBetweenWords = 1.0f;
+    /// <summary>
+    /// Any information that needs to be displayed to the user such as countdown, success, failure, etc...
+    /// </summary>
+    public Text InformationText;
 
-    public List<string> WordPool { get; private set; }
+    /// <summary>
+    /// The parent object that holds all of the words to be hacked.
+    /// </summary>
+    public GameObject WordHolder;
 
-    private string CurrentText;
-    private List<FallingWord> CurrentWords;
-    private string MatchingWord;
-    private FallingWord[ ] MatchingWords;
-    private bool HasFoundWord = false;
+    /// <summary>
+    /// The parent object that holds the timer.
+    /// </summary>
+    public Image TimerBG;
 
+    // TODO: Have this value set somewhere else!
+    /// <summary>
+    /// Total hacking time player has to hack words.
+    /// </summary>
+    public float HackTime = 10.0f;
+
+    /// <summary>
+    /// Used to display the number of correct hacks.
+    /// EX: 1 / 10
+    /// </summary>
+    public Text NumCorrectText;
+
+    /// <summary>
+    /// What the player types.
+    /// </summary>
+    public InputField MyInput;
+
+    public int TotalNumHacks { get; set; }
+
+    /// <summary>
+    /// List of all possible words to be hacked.  Loaded from .txt file in Resources folder.
+    /// </summary>
+    public List<string> AllWords { get; private set; }
+
+    /// <summary>
+    /// Boolean used to determine if the user has succeeded or failed in hacking.
+    /// </summary>
+    public bool WasHackSuccess { get; private set; }
+
+    /// <summary>
+    /// List of words to be hacked.  Children of WordHolder.
+    /// </summary>
+    private Word[ ] Words;
+
+    /// <summary>
+    /// How long the player has left to hack the words.
+    /// </summary>
+    private float HackTimeRemaining;
+
+    /// <summary>
+    /// The image that represents the HackTimeRemaining.
+    /// </summary>
+    private Image TimerBar;
+
+    /// <summary>
+    /// Used to determine if the countdown has finished.  If finished, start hacking!
+    /// </summary>
+    private bool HasCountdownFinished = false;
+
+    /// <summary>
+    /// Used to determine if the hacking has started.
+    /// If true, the MyInput InputField should accent input.
+    /// </summary>
+    private bool IsHackingInProgress = false;
+
+    /// <summary>
+    /// How many words were submitted successfully.
+    /// </summary>
+    private int CurrentNumCorrect = 0;
+
+    /// <summary>
+    /// The Instance that can used in other classes.
+    /// </summary>
     public static InGameHUD Instance;
 
     private void Awake( )
     {
         Instance = this;
+
+        TimerBar = TimerBG.transform.GetChild( 0 ).GetComponent<Image>( );
+        Words = GetComponentsInChildren<Word>( true );
+
+        ToggleInformation( true );
+
+        HackTimeRemaining = HackTime;
+
+        MyInput.DeactivateInputField( );
+        MyInput.text = "";
+
+        WasHackSuccess = IsHackingInProgress = HasCountdownFinished = false;
     }
 
-    private void Start( )
+    private void OnEnable( )
     {
-        LoadWords( );
-        CurrentWords = new List<FallingWord>( );
-        StartCoroutine( StartFallingWords( ) );
+        TotalNumHacks = 5;
+
+        NumCorrectText.text = "Num Correct: " + CurrentNumCorrect + " / " + TotalNumHacks;
+
+        LoadAllWords( );
+        SetWords( );
+        StartCoroutine( StartCountdown( ) );
     }
 
-    private void LoadWords( )
+    private void Update( )
     {
-        WordPool = new List<string>( );
+        if( !HasCountdownFinished )
+            return;
+
+        // If hacking in progress, upate timer and allow for input.
+        if( IsHackingInProgress )
+        {
+            if( HackTimeRemaining >= 0.0f )
+            {
+                if( !MyInput.isFocused )
+                    MyInput.ActivateInputField( );
+
+                HackTimeRemaining -= Time.deltaTime;
+                TimerBar.fillAmount = HackTimeRemaining / HackTime;
+
+                if( Input.GetKeyDown( KeyCode.Return ) && !string.IsNullOrEmpty( MyInput.text ) )
+                    SubmitWord( );
+            }
+            else
+            {
+                WasHackSuccess = false;
+            }
+        }
+        else
+        {
+            if( Input.GetKeyDown( KeyCode.Q ) )
+            {
+                // TODO: Return to main menu.
+
+                DeactivateHUD( );
+            }
+        }
+    }
+
+    /// <summary>
+    /// Load all possible words from the text file located in path.
+    /// </summary>
+    private void LoadAllWords( )
+    {
+        AllWords = new List<string>( );
 
         string path = "Assets/Resources/WordList.txt";
         StreamReader reader = new StreamReader( path );
 
         while( !reader.EndOfStream )
-            WordPool.Add( reader.ReadLine( ) );
+            AllWords.Add( reader.ReadLine( ) );
 
-        Debug.Log( WordPool.Count );
         reader.Close( );
     }
 
-    private IEnumerator StartFallingWords( )
+    private void SetWords( )
     {
-        while( true )
+        for( int i = 0; i < Words.Length; i++ )
         {
-            SpawnWordRandomLocation( );
-            yield return new WaitForSeconds( TimeBetweenWords );
+            string rndWord = AllWords[ Random.Range( 0, AllWords.Count ) ];
+            Words[ i ].SetWord( rndWord );
+            AllWords.Remove( rndWord );
         }
     }
 
-    private void SpawnWordRandomLocation( )
+    private string GetNewWord( )
     {
-        FallingWord obj = Instantiate( FallingTextPrefab, transform ) as FallingWord;
-        float minPosX = obj.RectTrans.position.x - ( Screen.width / 2f ) + ( obj.RectTrans.sizeDelta.x / 2f );
-        float maxPosX = obj.RectTrans.position.x + ( Screen.width / 2f ) - ( obj.RectTrans.sizeDelta.x / 2f );
-        float posY = transform.position.y + ( Screen.height / 2f ) + ( obj.RectTrans.sizeDelta.y / 2f );
-        obj.RectTrans.position = new Vector3( Random.Range( minPosX, maxPosX ), posY, 0f );
-
-        AddWordToList( obj );
+        string rndWord = AllWords[ Random.Range( 0, AllWords.Count ) ];
+        AllWords.Remove( rndWord );
+        return rndWord;
     }
 
-    private void AddWordToList( FallingWord textObj )
+    private void ToggleInformation( bool toggle )
     {
-        string randWord = WordPool[ Random.Range( 0, WordPool.Count ) ];
-        textObj.SetText( randWord );
-        CurrentWords.Add( textObj );
-        WordPool.Remove( randWord );
-    }
-
-    private void Update( )
-    {
-        foreach( char letter in Input.inputString )
-            TypeLetter( letter );
-    }
-
-    public void TypeLetter( char letter )
-    {
-        if( HasFoundWord )
+        if( toggle )
         {
-            if( MatchingWords[ 0 ].GetNextLetter( ) == letter )
-            {
-                MyText.text += letter.ToString( );
+            InformationText.gameObject.SetActive( true );
+            TimerBG.gameObject.SetActive( false );
+            WordHolder.gameObject.SetActive( false );
+            NumCorrectText.gameObject.SetActive( false );
+        }
+        else
+        {
+            InformationText.gameObject.SetActive( false );
+            TimerBG.gameObject.SetActive( true );
+            WordHolder.gameObject.SetActive( true );
+            NumCorrectText.gameObject.SetActive( true );
+        }
+    }
 
-                foreach( var word in MatchingWords )
-                    if( word.GetNextLetter( ) == letter )
-                        word.TypeLetter( );
+    private IEnumerator StartCountdown( )
+    {
+        IsHackingInProgress = HasCountdownFinished = false;
+
+        string text = "Start hacking in\n";
+        int countDown = 3;
+
+        while( countDown >= 0 )
+        {
+            if( countDown == 0 )
+                InformationText.text = "Hack!";
+            else
+                InformationText.text = text + countDown.ToString( ) + "...";
+
+            yield return new WaitForSeconds( 1.0f );
+            countDown -= 1;
+        }
+
+        ToggleInformation( false );
+
+        IsHackingInProgress = HasCountdownFinished = true;
+    }
+
+    private void SubmitWord( )
+    {
+        bool foundMatch = false;
+
+        foreach( var word in Words )
+        {
+            if( word.GetWord( ) == MyInput.text )
+            {
+                word.SetWord( GetNewWord( ) );
+                foundMatch = true;
+
+                // TODO: Play word success SFX.
             }
-
-            if( MatchingWords[ 0 ].WordFinished( ) )
+            else
             {
-                for( int i = 0; i < MatchingWords.Length; i++ )
-                {
-                    CurrentWords.Remove( MatchingWords[ i ] );
-                    Destroy( MatchingWords[ i ].gameObject );
-                }
+                word.ResetWord( );
+            }
+        }
 
-                HasFoundWord = false;
-                MatchingWords = null;
-                MyText.text = "";
+        MyInput.text = "";
+
+        WasHackSuccess = IsHackingInProgress = foundMatch;
+
+        if( foundMatch )
+        {
+            CurrentNumCorrect++;
+            NumCorrectText.text = "Num Correct: " + CurrentNumCorrect + " / " + TotalNumHacks;
+
+            if( CurrentNumCorrect == TotalNumHacks )
+            {
+                IsHackingInProgress = false;
+                WasHackSuccess = true;
+
+                StopHacking( );
             }
         }
         else
         {
-            MatchingWords = CurrentWords.FindAll( x => x.GetNextLetter( ) == letter ).ToArray( );
-            if( MatchingWords != null && MatchingWords.Length > 0 )
-            {
-                HasFoundWord = true;
-                MyText.text = letter.ToString( );
-            }
+            StopHacking( );
+        }
+    }
 
-            foreach( var word in MatchingWords )
-                word.TypeLetter( );
+    private void StopHacking( )
+    {
+        MyInput.enabled = false;
+        MyInput.DeactivateInputField( );
+
+        ToggleInformation( true );
+
+        string message = "";
+        if( WasHackSuccess )
+            message = "<color=#00AC33FF>You have succeeded!\nPress Q to return to hacking menu.</color>";
+        else 
+            message = "<color=red>You have failed!\nPress Q to return to hacking menu.</color>";
+
+        InformationText.text = message;
+
+        // TODO: Play failure SFX.
+    }
+
+    private void DeactivateHUD( )
+    {
+        gameObject.SetActive( false );
+    }
+
+    public void TypeLetter( )
+    {
+        // Only proceed if there is text in the input field!
+        if( string.IsNullOrEmpty( MyInput.text ) || MyInput.text.Length == 0 )
+        {
+            foreach( var word in Words )
+                word.ResetWord( );
+
+            return;
+        }
+
+        // Loop through all words to see if any match.
+        for( int i = 0; i < Words.Length; i++ )
+        {
+            Word word = Words[ i ];
+
+            if( word.DoLettersMatch( MyInput.text ) )
+                word.TypeLetter( MyInput.text.Length );
+            else
+                word.ResetWord( );
         }
     }
 }
