@@ -85,7 +85,7 @@ public class District : MonoBehaviour
     public District[ ] Neighbors;
 
     #region Components
-    private Image DistrictImage;
+    public Image DistrictImage { get; private set; }
     #endregion
 
     private Color InfectionColor = Color.blue;
@@ -98,6 +98,15 @@ public class District : MonoBehaviour
         {
             OldSprite = DistrictImage.sprite;
             DistrictImage.color = InfectionColor;
+        }
+    }
+
+    private void Start()
+    {
+        /// Fade out infra
+        for(int i = 0; i < Structures.Count; i++)
+        {
+            Structures[i].StructureSprite.color = new Color( 1, 1, 1, 0.2f );
         }
     }
 

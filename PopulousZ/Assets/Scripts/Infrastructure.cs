@@ -11,7 +11,7 @@ public class Infrastructure : MonoBehaviour
         get {
             if (all_infrastructure == null)
             {
-                all_infrastructure = Resources.LoadAll<Infrastructure_Data>( "Infrastructure/" );
+                all_infrastructure = Resources.LoadAll<Infrastructure_Data>( "Structures/" );
                 InfraResCount = all_infrastructure.Length - 1;
             }
 
@@ -19,31 +19,42 @@ public class Infrastructure : MonoBehaviour
         }
     }
 
+    private Infrastructure_Data Model;
+    public Image StructureSprite { get; private set; }
+
+    [HideInInspector]
     public string Name;
+    [HideInInspector]
     public bool IsHacked;
+    [HideInInspector]
     public int HackLevel;
+    [HideInInspector]
     public E_INFRA_TYPE InfrastructureType;
 
+    [HideInInspector]
     public float CureRateModifier;
+    [HideInInspector]
     public float EscapeRateModifier;
+    [HideInInspector]
     public float CommunicationsModifier;
+    [HideInInspector]
     public float WasteManagementModifier;
 
     public District ParentDistrict;
-    private Infrastructure_Data Model;
-    private Image StructureSprite;
 
     private void Awake()
     {
         StructureSprite = GetComponent<Image>();
 
         //Get random properties
-        if (Infrastructure.InfraResCount > 0 && ParentDistrict != null)
+        if (ParentDistrict != null
+            && Infrastructure.ALL_INFRASTRUCTURE != null)
         {
             //Generate random structure
             Model = Infrastructure.ALL_INFRASTRUCTURE[
                 Random.Range( 0, Infrastructure.InfraResCount )];
 
+            Name                    = Model.Name;
             HackLevel               = Model.HackLevel;
             InfrastructureType      = Model.InfrastructureType;
             CureRateModifier        = Model.CureRateModifier;
