@@ -107,10 +107,11 @@ public class CommandPanelController : MonoBehaviour
                     /// Deploy
                     if(!GameManager.HasVirusDeployed)
                     {
+                        District _d = SelectedDistrict;
                         SelectedDistrict.Deselect();
                         SelectedDistrict = null;
                         SelectedStructure = null;
-                        GameManager.Instance.DeployVirusInDistrict(SelectedDistrict);
+                        GameManager.Instance.DeployVirusInDistrict( _d );
                     }
                     else //Go to hack
                     {

@@ -101,6 +101,15 @@ public class District : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        /// Fade out infra
+        for(int i = 0; i < Structures.Count; i++)
+        {
+            Structures[i].StructureSprite.color = new Color( 1, 1, 1, 0.2f );
+        }
+    }
+
     public void Update()
     {
         if (DistrictImage != null)

@@ -50,6 +50,7 @@ public enum E_INFRA_TYPE : int
 [CreateAssetMenu()]
 public class Infrastructure_Data : ScriptableObject
 {
+    public string Name;
     public int HackLevel;
     public E_INFRA_TYPE InfrastructureType;
 

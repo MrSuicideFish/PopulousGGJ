@@ -31,6 +31,9 @@ public class GameManager : MonoBehaviour
     public Color Color_WorldSafe;
     public Color Color_WorldInfected;
 
+    public static float TimeForSimulation = 7.0f;
+    private float SimulationTimer = 0.0f;
+
     private void ResetGame()
     {
         /// Reset variables
@@ -86,13 +89,20 @@ public class GameManager : MonoBehaviour
             {
                 BeautifyComponent.nightVisionColor = Color.Lerp( Color_WorldSafe, Color_WorldInfected, GetHealthyToInfectedRatio() );
             }
+
+            SimulationTimer += Time.deltaTime;
+            if(SimulationTimer >= TimeForSimulation)
+            {
+                BeginPlayerTurn();
+            }
         }
     }
 
     public void BeginPlayerTurn()
     {
-        CommandLinePanel.gameObject.SetActive( true );
         IsSimulating = false;
+        SimulationTimer = 0.0f;
+        CommandLinePanel.gameObject.SetActive( true );
         TurnCount++;
     }
 

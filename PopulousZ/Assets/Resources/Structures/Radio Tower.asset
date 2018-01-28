@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Radio Tower
+  m_EditorClassIdentifier: Assembly-CSharp::Infrastructure_Data
+  Name: Radio Tower
+  HackLevel: 1
+  InfrastructureType: 2
+  CureRateModifier: 0
+  EscapeRateModifier: 0.3
+  CommunicationsModifier: 0.5
+  WasteManagementModifier: 0
+  Sprite: {fileID: 21300000, guid: f28116b63a3055f42807f4b28d73796f, type: 3}
