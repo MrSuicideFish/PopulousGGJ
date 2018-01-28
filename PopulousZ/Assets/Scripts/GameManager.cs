@@ -24,6 +24,10 @@ public class GameManager : MonoBehaviour
 
     public static District District_GroundZero;
 
+    public static Infrastructure StructureToHack;
+
+    public static int VirusPoints = 0;
+
     //UI Components
     public CommandPanelController CommandLinePanel;
 
@@ -32,7 +36,20 @@ public class GameManager : MonoBehaviour
     public Color Color_WorldInfected;
 
     public static float TimeForSimulation = 7.0f;
-    private float SimulationTimer = 0.0f;
+    public static float SimulationTimer { get; private set; }
+
+    public static int TotalPopulation;
+    public static int InfectedPopulation;
+    public static int Panic;
+
+    private float MedicalRatingInInfected;
+    private float EscapeRatingInInfected;
+    private float CommunicationRatingInInfected;
+    private float WasteRatingInInfected;
+    private float HealthInfectedRatioInInfected;
+
+    private readonly float PopGrowthRate = 10.0f / 60;
+    private float GhostTimer = 0.0f;
 
     private void ResetGame()
     {
@@ -59,6 +76,10 @@ public class GameManager : MonoBehaviour
             ALL_DISTRICTS[i].EscapeRate         = 1.0f;
             ALL_DISTRICTS[i].HasCure            = false;
         }
+
+        /// Set start population
+        for(int i = 0; i < ALL_DISTRICTS.Length; i++)
+            TotalPopulation += ALL_DISTRICTS[i].Population;
     }
 
     private void Awake()
@@ -72,17 +93,30 @@ public class GameManager : MonoBehaviour
     {
         if (IsSimulating)
         {
-            /// tick districts
-            for (int i = 0; i < ALL_DISTRICTS.Length; i++)
+            GhostTimer += Time.deltaTime;
+            if(GhostTimer >= 0.2f)
             {
-                //Increase the infected population by factors
-                float proximity = ALL_DISTRICTS[i].InfectedPopulation / ALL_DISTRICTS[i].Population;
-                proximity *= ALL_DISTRICTS[i].PopulationDensity;
+                UpdateInInfectedRatings();
 
-                float waterInfectRate = ((1.1f - ALL_DISTRICTS[i].WasteManagement) * PLAYER_VIRUS.Lv_Waterborne) * ALL_DISTRICTS[i].PopulationDensity;
-                float airInfectRate = ((1.1f - ALL_DISTRICTS[i].WasteManagement) * PLAYER_VIRUS.Lv_Airborne) * ALL_DISTRICTS[i].PopulationDensity;
+                float growthThisFrame = 0.9f * (MedicalRatingInInfected / (TotalPopulation / 2));
+                float deathThisFrame = 0.2f * HealthInfectedRatioInInfected;
+                float escapeThisFrame = 0.3f * (EscapeRatingInInfected);
+                float commsThisFrame = 0.6f * CommunicationRatingInInfected;
+                float sickThisFrame = 2 + ((int)deathThisFrame + PLAYER_VIRUS.Lv_Airborne) - (int)escapeThisFrame - commsThisFrame;
 
-                Debug.LogFormat( "Water infect ({0}): {1}", ALL_DISTRICTS[i].name, waterInfectRate );
+                TotalPopulation += (int)(PopGrowthRate * growthThisFrame);
+                for(int i = 0; i < ALL_DISTRICTS.Length; i++)
+                {
+                    if(ALL_DISTRICTS[i].IsInfected)
+                    {
+                        int _x = (int)(sickThisFrame * ALL_DISTRICTS[i].PopulationDensity);
+                        Debug.Log( sickThisFrame + ", " + ALL_DISTRICTS[i].PopulationDensity );
+                        InfectedPopulation += _x
+                            + (PLAYER_VIRUS.Lv_Airborne + PLAYER_VIRUS.Lv_Foodborne + PLAYER_VIRUS.Lv_Waterborne);
+                    }
+                }
+                Panic = (int)(HealthInfectedRatioInInfected / GetHealthyToInfectedRatio()) * 100 / 100;
+                GhostTimer = 0.0f;
             }
 
             if(BeautifyComponent != null)
@@ -102,13 +136,15 @@ public class GameManager : MonoBehaviour
     {
         IsSimulating = false;
         SimulationTimer = 0.0f;
-        CommandLinePanel.gameObject.SetActive( true );
+        GhostTimer = 0.0f;
+        //CommandLinePanel.gameObject.SetActive( true );
+        CommandLinePanel.GoToSelectMenu();
         TurnCount++;
     }
 
-    private void EndPlayerTurn()
+    public void EndPlayerTurn()
     {
-        CommandLinePanel.gameObject.SetActive( false );
+        //CommandLinePanel.gameObject.SetActive( false );
         IsSimulating = true;
     }
 
@@ -116,7 +152,7 @@ public class GameManager : MonoBehaviour
     {
         /// Infect a population
         District_GroundZero = _d;
-        _d.InfectedPopulation += Random.Range( 1, 10 );
+        District_GroundZero.InfectedPopulation = 50;
 
         HasVirusDeployed = true;
         EndPlayerTurn();
@@ -124,15 +160,32 @@ public class GameManager : MonoBehaviour
 
     public float GetHealthyToInfectedRatio()
     {
-        int totalPop = 0;
-        int infectedPop = 0;
-        for(int i = 0; i < ALL_DISTRICTS.Length; i++)
+        return InfectedPopulation / TotalPopulation;
+    }
+
+    public void BeginHackStructure(Infrastructure _s)
+    {
+        StructureToHack = _s;
+
+        //Show hack screen
+    }
+
+    public void EndHackStructure(bool success)
+    {
+        //Hide hack screen
+
+        if(success)
         {
-            totalPop += ALL_DISTRICTS[i].Population;
-            infectedPop += ALL_DISTRICTS[i].InfectedPopulation;
+            StructureToHack.IsHacked = true;
+        }
+        else
+        {
+            StructureToHack.IsHacked = false;
+            StructureToHack.HackLevel = Mathf.Clamp( StructureToHack.HackLevel + 1,
+                1, 3 );
         }
 
-        return infectedPop / totalPop;
+        StructureToHack = null;
     }
 
     public Infrastructure[] GetAllInfrustructure()
@@ -142,5 +195,76 @@ public class GameManager : MonoBehaviour
             for(int j = 0; j < ALL_DISTRICTS[i].Structures.Count; j++)
                 _structures.Add( ALL_DISTRICTS[i].Structures[j] );
         return _structures.ToArray();
+    }
+
+    public void LevelUpWaterBorne()
+    {
+
+    }
+
+    public void LevelUpAirBorne()
+    {
+
+    }
+
+    public void LevelUpFoodBorne()
+    {
+
+    }
+
+    private int totalInfra = -1;
+    public int GetTotalInfrastructure()
+    {
+        if (totalInfra == -1)
+            totalInfra = GameObject.FindObjectsOfType<Infrastructure>().Length;
+        return totalInfra;
+    }
+
+    public int GetHackedInfrastructure()
+    {
+        int hackedCount = 0;
+        for(int i = 0; i < ALL_DISTRICTS.Length; i++)
+        {
+            for(int j = 0; j < ALL_DISTRICTS[i].Structures.Count; j++)
+            {
+                if (ALL_DISTRICTS[i].Structures[j].IsHacked)
+                    hackedCount++;
+            }
+        }
+        return hackedCount;
+    }
+
+    private void UpdateInInfectedRatings()
+    {
+        float newMed = 0.0f;
+        float newEscape = 0.0f;
+        float newComms = 0.0f;
+        float newWaste = 0.0f;
+
+        float totalPop = 0;
+        float infectedPop = 0;
+
+        for (int i = 0; i < ALL_DISTRICTS.Length; i++)
+        {
+            if (!ALL_DISTRICTS[i].IsInfected)
+                continue;
+
+            totalPop += ALL_DISTRICTS[i].Population;
+            infectedPop += ALL_DISTRICTS[i].InfectedPopulation;
+            for (int j = 0; j < ALL_DISTRICTS[i].Structures.Count; j++)
+            {
+                if (!ALL_DISTRICTS[i].Structures[j].IsHacked)
+                {
+                    newMed += ALL_DISTRICTS[i].Structures[j].CureRateModifier;
+                    newEscape += ALL_DISTRICTS[i].Structures[j].EscapeRateModifier;
+                    newComms += ALL_DISTRICTS[i].Structures[j].CommunicationsModifier;
+                    newWaste += ALL_DISTRICTS[i].Structures[j].WasteManagementModifier;
+                }
+            }
+        }
+
+        //TotalPopulation = (int)totalPop;
+        //InfectedPopulation = (int)infectedPop;
+        HealthInfectedRatioInInfected = infectedPop / totalPop;
     }
 }

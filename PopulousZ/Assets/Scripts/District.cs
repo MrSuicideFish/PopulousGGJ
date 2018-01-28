@@ -85,7 +85,7 @@ public class District : MonoBehaviour
     public District[ ] Neighbors;
 
     #region Components
-    private Image DistrictImage;
+    public Image DistrictImage { get; private set; }
     #endregion
 
     private Color InfectionColor = Color.blue;
