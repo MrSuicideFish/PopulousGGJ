@@ -106,7 +106,7 @@ public class InGameHUD : MonoBehaviour
 
     private void OnEnable( )
     {
-        TotalNumHacks = 5;
+        TotalNumHacks = 10;
 
         NumCorrectText.text = "Num Correct: " + CurrentNumCorrect + " / " + TotalNumHacks;
 
@@ -276,7 +276,7 @@ public class InGameHUD : MonoBehaviour
         string message = "";
         if( WasHackSuccess )
             message = "<color=#00AC33FF>You have succeeded!\nPress Q to return to hacking menu.</color>";
-        else 
+        else
             message = "<color=red>You have failed!\nPress Q to return to hacking menu.</color>";
 
         InformationText.text = message;
@@ -295,7 +295,8 @@ public class InGameHUD : MonoBehaviour
         if( string.IsNullOrEmpty( MyInput.text ) || MyInput.text.Length == 0 )
         {
             foreach( var word in Words )
-                word.ResetWord( );
+                if( word != null )
+                    word.ResetWord( );
 
             return;
         }
